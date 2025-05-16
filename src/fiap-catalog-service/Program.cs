@@ -5,6 +5,7 @@ using fiap_catalog_service.Repositories;
 using fiap_catalog_service.Validators;
 using FluentValidation;
 using fiap_catalog_service.Services;
+using Amazon.SQS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,9 +23,18 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
     });
 });
 
+builder.Services.AddSingleton<IAmazonSQS>(sp =>
+{
+    return new AmazonSQSClient(new AmazonSQSConfig
+    {
+        ServiceURL = "http://localhost:4566"
+    });
+});
+
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<ISqsService, SqsService>();
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.AddConsole();
