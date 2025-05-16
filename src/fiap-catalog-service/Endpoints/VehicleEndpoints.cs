@@ -27,7 +27,7 @@ namespace fiap_catalog_service.Endpoints
                     return Results.ValidationProblem(errors);
                 }
 
-                return Results.Created($"/cars/{vehicle.Id}", vehicleService.AddVehicle(vehicle));
+                return Results.Created($"/vehicles/{vehicle.Id}", vehicleService.AddVehicle(vehicle));
             });
 
             // PUT: Atualiza um veículo existente     

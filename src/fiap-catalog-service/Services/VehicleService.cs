@@ -23,7 +23,8 @@ namespace fiap_catalog_service.Services
         /// </summary>
         /// <param name="vehicle"></param> 
         public Vehicle AddVehicle(Vehicle vehicle)
-        {
+        {    
+            vehicle.Id = Guid.NewGuid();
             _vehicles.Add(vehicle);
             return vehicle;
         }
