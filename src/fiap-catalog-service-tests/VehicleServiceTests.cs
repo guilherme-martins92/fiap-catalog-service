@@ -1,3 +1,4 @@
+using fiap_catalog_service.Constants;
 using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 using fiap_catalog_service.Services;
@@ -8,12 +9,14 @@ namespace fiap_catalog_service_tests
     public class VehicleServiceTests
     {
         private readonly Mock<IVehicleRepository> _mockRepository;
+        private readonly Mock<ISqsService> _mockSqsService;
         private readonly VehicleService _vehicleService;
 
         public VehicleServiceTests()
         {
             _mockRepository = new Mock<IVehicleRepository>();
-            _vehicleService = new VehicleService(_mockRepository.Object);
+            _mockSqsService = new Mock<ISqsService>();
+            _vehicleService = new VehicleService(_mockRepository.Object, _mockSqsService.Object);
         }
 
         [Fact]
@@ -70,6 +73,7 @@ namespace fiap_catalog_service_tests
             // Arrange  
             var vehicle = new Vehicle { Model = "Corolla", Brand = "Toyota", Color = "White", Year = 2019, Price = 18000 };
             _mockRepository.Setup(repo => repo.AddAsync(vehicle)).Returns(Task.CompletedTask);
+            _mockSqsService.Setup(sqs => sqs.SendMessageAsync(VehicleEventType.Created, vehicle)).Returns(Task.CompletedTask);
 
             // Act  
             var result = await _vehicleService.AddVehicleAsync(vehicle);
@@ -77,6 +81,7 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Equal(vehicle, result);
             _mockRepository.Verify(repo => repo.AddAsync(vehicle), Times.Once);
+            _mockSqsService.Verify(sqs => sqs.SendMessageAsync(VehicleEventType.Created, vehicle), Times.Once);
         }
 
         [Fact]
@@ -87,6 +92,7 @@ namespace fiap_catalog_service_tests
             var vehicle = new Vehicle { Model = "Accord", Brand = "Honda", Color = "Gray", Year = 2018, Price = 22000 };
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
             _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
+            _mockSqsService.Setup(sqs => sqs.SendMessageAsync(VehicleEventType.Updated, vehicle)).Returns(Task.CompletedTask);
 
             // Act  
             var result = await _vehicleService.UpdateVehicleAsync(vehicleId, vehicle);
@@ -94,6 +100,7 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Equal(vehicle, result);
             _mockRepository.Verify(repo => repo.UpdateAsync(vehicle), Times.Once);
+            _mockSqsService.Verify(sqs => sqs.SendMessageAsync(VehicleEventType.Updated, vehicle), Times.Once);
         }
 
         [Fact]
@@ -103,6 +110,9 @@ namespace fiap_catalog_service_tests
             var vehicleId = Guid.NewGuid();
             var vehicle = new Vehicle { Model = "Camry", Brand = "Toyota", Color = "Silver", Year = 2017, Price = 20000 };
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
+            _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
+
+
 
             // Act  
             var result = await _vehicleService.UpdateVehicleAsync(vehicleId, vehicle);
@@ -110,6 +120,7 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Null(result);
             _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
+            _mockSqsService.Verify(sqs => sqs.SendMessageAsync(VehicleEventType.Updated, It.IsAny<Vehicle>()), Times.Never);
         }
 
         [Fact]
@@ -120,6 +131,7 @@ namespace fiap_catalog_service_tests
             var vehicle = new Vehicle { Model = "Mustang", Brand = "Ford", Color = "Yellow", Year = 2021, Price = 55000 };
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
             _mockRepository.Setup(repo => repo.DeleteAsync(vehicleId)).Returns(Task.CompletedTask);
+            _mockSqsService.Setup(sqs => sqs.SendMessageAsync(VehicleEventType.Deleted, vehicle)).Returns(Task.CompletedTask);
 
             // Act  
             var result = await _vehicleService.DeleteVehicleAsync(vehicleId);
@@ -127,6 +139,7 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Equal(vehicle, result);
             _mockRepository.Verify(repo => repo.DeleteAsync(vehicleId), Times.Once);
+            _mockSqsService.Verify(sqs => sqs.SendMessageAsync(VehicleEventType.Deleted, vehicle), Times.Once);
         }
 
         [Fact]
@@ -135,6 +148,7 @@ namespace fiap_catalog_service_tests
             // Arrange  
             var vehicleId = Guid.NewGuid();
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
+            _mockRepository.Setup(repo => repo.DeleteAsync(vehicleId)).Returns(Task.CompletedTask);
 
             // Act  
             var result = await _vehicleService.DeleteVehicleAsync(vehicleId);
@@ -142,6 +156,7 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Null(result);
             _mockRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+            _mockSqsService.Verify(sqs => sqs.SendMessageAsync(VehicleEventType.Deleted, It.IsAny<Vehicle>()), Times.Never);
         }
     }
 }
