@@ -8,31 +8,31 @@ namespace fiap_catalog_service.Services
         /// Returns a list of all vehicles.
         /// </summary>
         /// <returns></returns>
-        List<Vehicle> GetVehicles();
+        Task<IEnumerable<Vehicle>> GetAllVehiclesAsync();
 
         /// <summary>
         /// Returns a vehicle by its ID.
         /// </summary>
         /// <param name="id"></param>
-        Vehicle? GetVehicleById(Guid id);
+        Task<Vehicle?> GetVehicleByIdAsync(Guid id);
 
         /// <summary>
         /// Adds a new vehicle to the list.
         /// </summary>
         /// <param name="vehicle"></param>
-        Vehicle AddVehicle(Vehicle vehicle);
+        Task<Vehicle?> AddVehicleAsync(Vehicle vehicle);
 
         /// <summary>
         /// Updates an existing vehicle in the list.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="vehicle"></param>
-        Vehicle? UpdateVehicle(Guid id, Vehicle vehicle);
+        Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle);
 
         /// <summary>
         /// Deletes a vehicle by its ID.
         /// </summary>
         /// <param name="id"></param>
-        Vehicle? DeleteVehicle(Guid id);
+        Task<Vehicle?> DeleteVehicleAsync(Guid id);
     }
 }

@@ -1,30 +1,36 @@
 ﻿using fiap_catalog_service.Models;
+using fiap_catalog_service.Repositories;
 
 namespace fiap_catalog_service.Services
 {
     public class VehicleService : IVehicleService
     {
-        private readonly List<Vehicle> _vehicles = new();
+        private readonly IVehicleRepository _vehicleRepository;
+
+        public VehicleService(IVehicleRepository vehicleRepository)
+        {
+            _vehicleRepository = vehicleRepository;
+        }
 
         /// <summary>
         /// Returns a list of all vehicles.
         /// </summary>
         /// <returns></returns>
-        public List<Vehicle> GetVehicles() => _vehicles;
+        public async Task<IEnumerable<Vehicle>> GetAllVehiclesAsync() => await _vehicleRepository.GetAllAsync();
 
         /// <summary>
         /// Returns a vehicle by its ID.
         /// </summary>
         /// <param name="id"></param>
-        public Vehicle? GetVehicleById(Guid id) => _vehicles.FirstOrDefault(v => v.Id == id);
+        public async Task<Vehicle?> GetVehicleByIdAsync(Guid id) => await _vehicleRepository.GetByIdAsync(id);
 
         /// <summary>
         /// Adds a new vehicle to the list.
         /// </summary>
         /// <param name="vehicle"></param> 
-        public Vehicle AddVehicle(Vehicle vehicle)
+        public async Task<Vehicle?> AddVehicleAsync(Vehicle vehicle)
         {
-            _vehicles.Add(vehicle);
+            await _vehicleRepository.AddAsync(vehicle);
             return vehicle;
         }
 
@@ -33,13 +39,12 @@ namespace fiap_catalog_service.Services
         /// </summary>
         /// <param name="id"></param>
         /// <param name="vehicle"></param>
-        public Vehicle? UpdateVehicle(Guid id, Vehicle vehicle)
+        public async Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle)
         {
-            var existingVehicle = _vehicles.FirstOrDefault(v => v.Id == id);
-            if (existingVehicle == null) return null;
+            var vehicleToUpdate = await _vehicleRepository.GetByIdAsync(id);
+            if (vehicleToUpdate == null) return null;
 
-            _vehicles.Remove(existingVehicle);
-            _vehicles.Add(vehicle);
+            await _vehicleRepository.UpdateAsync(vehicle);
             return vehicle;
         }
 
@@ -47,12 +52,12 @@ namespace fiap_catalog_service.Services
         /// Deletes a vehicle by its ID.
         /// </summary>
         /// <param name="id"></param>
-        public Vehicle? DeleteVehicle(Guid id)
+        public async Task<Vehicle?> DeleteVehicleAsync(Guid id)
         {
-            var vehicle = _vehicles.FirstOrDefault(c => c.Id == id);
+            var vehicle = await _vehicleRepository.GetByIdAsync(id);
             if (vehicle == null) return null;
 
-            _vehicles.Remove(vehicle);
+            await _vehicleRepository.DeleteAsync(id);
             return vehicle;
         }
     }

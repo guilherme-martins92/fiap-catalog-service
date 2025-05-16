@@ -1,6 +1,10 @@
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2;
 using fiap_catalog_service.Endpoints;
+using fiap_catalog_service.Repositories;
 using fiap_catalog_service.Validators;
 using FluentValidation;
+using fiap_catalog_service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssemblyContaining<VehicleValidator>();
+
+builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
+{
+    return new AmazonDynamoDBClient();
+});
+
+builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+
 
 var app = builder.Build();
 
@@ -21,6 +35,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-VehicleEndpoints.RegisterEndpoints(app);
+using (var scope = app.Services.CreateScope())
+{
+    var vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
+    var vehicleEndpoints = new VehicleEndpoints(vehicleService);
+    vehicleEndpoints.RegisterEndpoints(app);
+}
 
 app.Run();
