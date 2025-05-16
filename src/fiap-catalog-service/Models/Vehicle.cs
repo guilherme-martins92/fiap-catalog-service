@@ -5,7 +5,8 @@
         /// <summary>
         /// Unique identifier for the vehicle.
         /// </summary>
-        public Guid Id { get; set; } = new Guid();
+        public Guid Id { get; private set; } = Guid.NewGuid();
+
 
         /// <summary>
         /// The model of the vehicle.
