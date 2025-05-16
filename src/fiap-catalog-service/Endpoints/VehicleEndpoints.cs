@@ -7,55 +7,133 @@ namespace fiap_catalog_service.Endpoints
     public class VehicleEndpoints
     {
         private readonly IVehicleService _vehicleService;
+        private readonly ILogger<VehicleEndpoints> _logger;
 
-        public VehicleEndpoints(IVehicleService vehicleService)
+
+        public VehicleEndpoints(IVehicleService vehicleService, ILogger<VehicleEndpoints> logger)
         {
             _vehicleService = vehicleService;
+            _logger = logger;
         }
 
         public void RegisterEndpoints(WebApplication app)
         {
-            // GET: Retorna todos os veículos      
-            app.MapGet("/vehicles", async () => await _vehicleService.GetAllVehiclesAsync());
+            app.MapGet("/vehicles", async () =>
+            {
+                try
+                {
+                    _logger.LogInformation("Buscando todos os veículos");
 
-            // GET: Busca um veículo por ID      
-            app.MapGet("/vehicles/{id}", async (Guid id) => await _vehicleService.GetVehicleByIdAsync(id) is Vehicle vehicle ? Results.Ok(vehicle) : Results.NotFound());
+                    var vehicles = await _vehicleService.GetAllVehiclesAsync();
+                    return Results.Ok(vehicles);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao buscar veículos");
+                    return Results.Problem(title: "Erro interno");
+                }
+            });
 
-            // POST: Cadastra um novo veículo   
+            app.MapGet("/vehicles/{id}", async (Guid id) =>
+            {
+                try
+                {
+                    _logger.LogInformation("Buscando veículo com ID: {Id}", id);
+
+                    var vehicle = await _vehicleService.GetVehicleByIdAsync(id);
+
+                    return vehicle is not null
+                        ? Results.Ok(vehicle)
+                        : Results.NotFound();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao buscar veículo com ID: {Id}", id);
+                    return Results.Problem(title: "Erro interno");
+                }
+            });
+
             app.MapPost("/vehicles", async (Vehicle vehicle, IValidator<Vehicle> validator) =>
             {
-                var result = validator.Validate(vehicle);
-
-                if (!result.IsValid)
+                try
                 {
-                    var errors = result.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
-                    return Results.ValidationProblem(errors);
-                }
+                    _logger.LogInformation("Cadastrando veículo: {Vehicle}", vehicle);
 
-                var createdVehicle = await _vehicleService.AddVehicleAsync(vehicle);
-                return Results.Created($"/vehicles/{createdVehicle.Id}", createdVehicle);
+                    var result = validator.Validate(vehicle);
+
+                    if (!result.IsValid)
+                    {
+                        var errors = result.Errors
+                            .GroupBy(e => e.PropertyName)
+                            .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+                        return Results.ValidationProblem(errors);
+                    }
+
+                    var createdVehicle = await _vehicleService.AddVehicleAsync(vehicle);
+
+                    if (createdVehicle is null)
+                        throw new Exception();
+
+                    return Results.Created($"/vehicles/{createdVehicle.Id}", createdVehicle);
+                }
+                catch (ValidationException ex)
+                {
+                    return Results.BadRequest(new { Message = "Erro de validação", ex.Errors });
+                }
+                catch (Exception)
+                {
+                    _logger.LogError("Erro ao cadastrar veículo: {Vehicle}", vehicle);
+                    return Results.Problem(title: "Erro interno");
+                }
             });
 
-            // PUT: Atualiza um veículo existente       
             app.MapPut("/vehicles/{id}", async (Guid id, Vehicle vehicle, IValidator<Vehicle> validator) =>
             {
-                var result = validator.Validate(vehicle);
-
-                if (!result.IsValid)
+                try
                 {
-                    var errors = result.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
-                    return Results.ValidationProblem(errors);
-                }
+                    _logger.LogInformation("Atualizando veículo com ID: {Id}", id);
 
-                var updatedCar = await _vehicleService.UpdateVehicleAsync(id, vehicle);
-                return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
+                    var result = validator.Validate(vehicle);
+
+                    if (!result.IsValid)
+                    {
+                        var errors = result.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
+                        return Results.ValidationProblem(errors);
+                    }
+
+                    var updatedCar = await _vehicleService.UpdateVehicleAsync(id, vehicle);
+                    return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
+                }
+                catch (ValidationException ex)
+                {
+                    return Results.BadRequest(new { Message = "Erro de validação", ex.Errors });
+                }
+                catch (Exception)
+                {
+                    _logger.LogError("Erro ao atualizar veículo com ID: {Id}", id);
+                    return Results.Problem(title: "Erro interno");
+                }
             });
 
-            // DELETE: Remove um veículo existente  
             app.MapDelete("/vehicles/{id}", async (Guid id) =>
             {
-                var deletedVehicle = await _vehicleService.DeleteVehicleAsync(id);
-                return deletedVehicle is not null ? Results.Ok(deletedVehicle) : Results.NotFound();
+                try
+                {
+                    _logger.LogInformation("Removendo veículo com ID: {Id}", id);
+
+                    var deletedVehicle = await _vehicleService.DeleteVehicleAsync(id);
+
+                    return deletedVehicle is not null
+                        ? Results.Ok(deletedVehicle)
+                        : Results.NotFound();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao remover veículo com ID: {Id}", id);
+
+                    return Results.Problem(title: "Erro interno", detail: ex.Message);
+                }
             });
         }
     }

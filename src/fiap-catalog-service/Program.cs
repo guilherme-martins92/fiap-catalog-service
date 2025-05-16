@@ -25,6 +25,11 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+    loggingBuilder.AddDebug();
+});
 
 var app = builder.Build();
 
@@ -40,7 +45,9 @@ app.UseHttpsRedirection();
 using (var scope = app.Services.CreateScope())
 {
     var vehicleService = scope.ServiceProvider.GetRequiredService<IVehicleService>();
-    var vehicleEndpoints = new VehicleEndpoints(vehicleService);
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<VehicleEndpoints>>();
+
+    var vehicleEndpoints = new VehicleEndpoints(vehicleService, logger);
     vehicleEndpoints.RegisterEndpoints(app);
 }
 
