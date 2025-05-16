@@ -21,7 +21,7 @@ jobs:
         run: dotnet restore src/fiap-catalog-service.sln
         
       - name: Compilar aplicação
-        run: dotnet build --configuration Release
+        run: dotnet build src/fiap-catalog-service.sln --configuration Release
 
   tests:
     needs: build
