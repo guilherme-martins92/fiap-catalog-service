@@ -23,14 +23,28 @@ jobs:
       - name: Compilar aplicação
         run: dotnet build --configuration Release
 
+  tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
       - name: Executar testes
         run: dotnet test --no-build --verbosity normal
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: tests
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Preparar artefato para deploy
+        run: |
+          zip -r deploy.zip . -x "*.git*"
+
       - name: Deploy no AWS Lambda
         run: |
           aws lambda update-function-code \
