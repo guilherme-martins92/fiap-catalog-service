@@ -42,5 +42,18 @@ namespace fiap_catalog_service.Services
             _vehicles.Add(vehicle);
             return vehicle;
         }
+
+        /// <summary>
+        /// Deletes a vehicle by its ID.
+        /// </summary>
+        /// <param name="id"></param>
+        public Vehicle? DeleteVehicle(Guid id)
+        {
+            var vehicle = _vehicles.FirstOrDefault(c => c.Id == id);
+            if (vehicle == null) return null;
+
+            _vehicles.Remove(vehicle);
+            return vehicle;
+        }
     }
 }

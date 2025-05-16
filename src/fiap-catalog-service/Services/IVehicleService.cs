@@ -28,5 +28,11 @@ namespace fiap_catalog_service.Services
         /// <param name="id"></param>
         /// <param name="vehicle"></param>
         Vehicle? UpdateVehicle(Guid id, Vehicle vehicle);
+
+        /// <summary>
+        /// Deletes a vehicle by its ID.
+        /// </summary>
+        /// <param name="id"></param>
+        Vehicle? DeleteVehicle(Guid id);
     }
 }

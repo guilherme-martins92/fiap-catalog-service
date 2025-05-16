@@ -27,7 +27,7 @@ namespace fiap_catalog_service.Endpoints
                     return Results.ValidationProblem(errors);
                 }
 
-                return Results.Created($"/cars/{vehicle.Id}", vehicle);
+                return Results.Created($"/cars/{vehicle.Id}", vehicleService.AddVehicle(vehicle));
             });
 
             // PUT: Atualiza um veículo existente     
@@ -43,6 +43,13 @@ namespace fiap_catalog_service.Endpoints
 
                 var updatedCar = vehicleService.UpdateVehicle(id, vehicle);
                 return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
+            });
+
+            // DELETE: Remove um veículo existente
+            app.MapDelete("/vehicles/{id}", (Guid id) =>
+            {
+                var deletedVehicle = vehicleService.DeleteVehicle(id);
+                return deletedVehicle is not null ? Results.Ok(deletedVehicle) : Results.NotFound();
             });
         }
     }

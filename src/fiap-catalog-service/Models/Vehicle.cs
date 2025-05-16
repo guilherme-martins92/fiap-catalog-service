@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace fiap_catalog_service.Models
+﻿namespace fiap_catalog_service.Models
 {
     public class Vehicle
     {
         /// <summary>
         /// Unique identifier for the vehicle.
         /// </summary>
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = new Guid();
 
         /// <summary>
         /// The model of the vehicle.
