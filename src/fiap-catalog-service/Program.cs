@@ -16,13 +16,15 @@ builder.Services.AddValidatorsFromAssemblyContaining<VehicleValidator>();
 
 builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 {
-    return new AmazonDynamoDBClient();
+    return new AmazonDynamoDBClient(new AmazonDynamoDBConfig
+    {
+        ServiceURL = "http://localhost:4566"
+    });
 });
 
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
-
 
 var app = builder.Build();
 

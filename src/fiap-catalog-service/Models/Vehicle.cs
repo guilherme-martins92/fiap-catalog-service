@@ -1,5 +1,8 @@
-﻿namespace fiap_catalog_service.Models
+﻿using Amazon.DynamoDBv2.DataModel;
+
+namespace fiap_catalog_service.Models
 {
+    [DynamoDBTable("Vehicles")]
     public class Vehicle
     {
         /// <summary>

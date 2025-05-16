@@ -13,7 +13,7 @@ namespace fiap_catalog_service.Repositories
         }
 
         public async Task AddAsync(Vehicle vehicle)
-        {
+        { 
             await _context.SaveAsync(vehicle);
         }
 
