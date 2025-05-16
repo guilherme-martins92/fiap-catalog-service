@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar dependências
+        run: dotnet restore src/fiap-catalog-service.sln
+        
+      - name: Compilar aplicação
+        run: dotnet build src/fiap-catalog-service.sln --configuration Release
+
+  tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Executar testes
+        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Simular criação do artefato para deploy
+        run: echo "Criando artefato fake para deploy..."
+
+      - name: Simular upload do artefato
+        run: echo "Upload fake realizado!"
+
+      - name: Simular deploy na AWS Lambda
+        run: echo "Simulando deploy no AWS Lambda..."
+
