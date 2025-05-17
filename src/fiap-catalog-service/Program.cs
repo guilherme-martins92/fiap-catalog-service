@@ -15,20 +15,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddValidatorsFromAssemblyContaining<VehicleValidator>();
 
+// Add AWS Lambda support. When running the application as an AWS Serverless application, Kestrel is replaced
+// with a Lambda function contained in the Amazon.Lambda.AspNetCoreServer package, which marshals the request into the ASP.NET Core hosting framework.
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
 builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 {
-    return new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-    {
-        ServiceURL = "http://localhost:4566"
-    });
+    return new AmazonDynamoDBClient();
 });
 
 builder.Services.AddSingleton<IAmazonSQS>(sp =>
 {
-    return new AmazonSQSClient(new AmazonSQSConfig
-    {
-        ServiceURL = "http://localhost:4566"
-    });
+    return new AmazonSQSClient();
 });
 
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
