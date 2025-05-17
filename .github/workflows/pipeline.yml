@@ -38,15 +38,22 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
+      - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Simular criação do artefato para deploy
-        run: echo "Criando artefato fake para deploy..."
+      - name: Instalar AWS SAM CLI
+        run: |
+          pip install aws-sam-cli
 
-      - name: Simular upload do artefato
-        run: echo "Upload fake realizado!"
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      - name: Simular deploy na AWS Lambda
-        run: echo "Simulando deploy no AWS Lambda..."
+      - name: Build SAM Application
+        run: sam build
 
+      - name: Deploy para AWS
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name fiap-catalog-service
