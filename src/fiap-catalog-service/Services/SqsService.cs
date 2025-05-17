@@ -8,7 +8,7 @@ namespace fiap_catalog_service.Services
     public class SqsService : ISqsService
     {
         private readonly IAmazonSQS _sqsClient;
-        private readonly string _queueUrl = "http://localhost:4566/000000000000/VehicleEventsQueue";
+        private readonly string _queueUrl = "https://sqs.us-east-1.amazonaws.com/891377307312/VehicleEventsQueue";
 
         public SqsService(IAmazonSQS sqsClient)
         {

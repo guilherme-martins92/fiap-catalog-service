@@ -81,9 +81,9 @@ namespace fiap_catalog_service.Endpoints
                 {
                     return Results.BadRequest(new { Message = "Erro de validação", ex.Errors });
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    _logger.LogError("Erro ao cadastrar veículo: {Vehicle}", vehicle);
+                    _logger.LogError("Erro ao cadastrar veículo: {Vehicle} - Erro: {Error}", vehicle.Model, ex.Message);
                     return Results.Problem(title: "Erro interno");
                 }
             });
