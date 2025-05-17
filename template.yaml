@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Arquitetura baseada em microsserviços para catálogo de veículos, utilizando AWS Lambda, Amazon SQS e DynamoDB
+  Arquitetura baseada em microsservicos para catalogo de veiculos, utilizando AWS Lambda, Amazon SQS e DynamoDB
 
 Globals:
   Function:
@@ -13,7 +13,7 @@ Globals:
   Api:
     TracingEnabled: true
 Resources:
-  FiapCatalogApi:
+  CatalogApi:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./src/fiap-catalog-service/

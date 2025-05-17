@@ -1,6 +1,7 @@
 ﻿using fiap_catalog_service.Models;
 using fiap_catalog_service.Services;
 using FluentValidation;
+using System.Text.Json;
 
 namespace fiap_catalog_service.Endpoints
 {
@@ -57,7 +58,7 @@ namespace fiap_catalog_service.Endpoints
             {
                 try
                 {
-                    _logger.LogInformation("Cadastrando veículo: {Vehicle}", vehicle);
+                    _logger.LogInformation("Cadastrando veículo: {Vehicle}", JsonSerializer.Serialize(vehicle));
 
                     var result = validator.Validate(vehicle);
 
@@ -83,7 +84,7 @@ namespace fiap_catalog_service.Endpoints
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Erro ao cadastrar veículo: {Vehicle} - Erro: {Error}", vehicle.Model, ex.Message);
+                    _logger.LogError(ex, "Erro ao cadastrar veículo: {Vehicle}", JsonSerializer.Serialize(vehicle));
                     return Results.Problem(title: "Erro interno");
                 }
             });
@@ -109,9 +110,9 @@ namespace fiap_catalog_service.Endpoints
                 {
                     return Results.BadRequest(new { Message = "Erro de validação", ex.Errors });
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    _logger.LogError("Erro ao atualizar veículo com ID: {Id}", id);
+                    _logger.LogError(ex, "Erro ao atualizar veículo com ID: {Id}", id);
                     return Results.Problem(title: "Erro interno");
                 }
             });
