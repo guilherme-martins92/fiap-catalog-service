@@ -32,11 +32,11 @@ jobs:
 
       - name: Executar testes com cobertura
         run: |
-          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj \
-            --no-build \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=TestResults/coverage.cobertura.xml
+          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj `
+          --no-build `
+          /p:CollectCoverage=true `
+          /p:CoverletOutputFormat=cobertura `
+          /p:CoverletOutput=TestResults/coverage.cobertura.xml
         shell: pwsh
 
   sonarQube:
