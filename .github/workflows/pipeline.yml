@@ -67,7 +67,7 @@ jobs:
         run: dotnet build src/fiap-catalog-service.sln --no-incremental
 
       - name: Run tests with coverage
-        run: dotnet test --no-build --collect:"XPlat Code Coverage"
+        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --no-build --collect:"XPlat Code Coverage"
 
       - name: Convert coverage to OpenCover format
         run: reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coveragereport -reporttypes:HtmlInline_AzurePipelines;Cobertura -reporttypes:OpenCover -filefilters:+*.cs -assemblyfilters:+*
