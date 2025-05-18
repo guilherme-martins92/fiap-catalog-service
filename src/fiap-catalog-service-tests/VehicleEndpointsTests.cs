@@ -2,11 +2,8 @@ using fiap_catalog_service.Endpoints;
 using fiap_catalog_service.Models;
 using fiap_catalog_service.Services;
 using FluentValidation;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 
 namespace fiap_catalog_service_tests
 {

@@ -19,7 +19,11 @@ namespace fiap_catalog_service.Services
         /// Returns a list of all vehicles.
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Vehicle>> GetAllVehiclesAsync() => await _vehicleRepository.GetAllAsync();
+        public async Task<IEnumerable<Vehicle>> GetAllVehiclesAsync()
+        {
+            var vehicles = await _vehicleRepository.GetAllAsync();
+            return vehicles.OrderBy(v => v.Price);
+        }
 
         /// <summary>
         /// Returns a vehicle by its ID.

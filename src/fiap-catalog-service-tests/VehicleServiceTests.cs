@@ -24,10 +24,10 @@ namespace fiap_catalog_service_tests
         {
             // Arrange  
             var vehicles = new List<Vehicle>
-               {
-                   new Vehicle { Model = "Model X", Brand = "Tesla", Color = "Red", Year = 2022, Price = 80000 },
-                   new Vehicle { Model = "Civic", Brand = "Honda", Color = "Blue", Year = 2020, Price = 20000 }
-               };
+            {
+                new Vehicle { Model = "Civic", Brand = "Honda", Color = "Blue", Year = 2020, Price = 20000 },
+                new Vehicle { Model = "Model X", Brand = "Tesla", Color = "Red", Year = 2022, Price = 80000 }
+            };
 
             _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(vehicles);
 
