@@ -33,6 +33,26 @@ jobs:
       - name: Executar testes
         run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release
 
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Instalar SonarScanner
+        run: |
+          pip install aws-sam-cli
+
+      - name: Configurar credenciais SonarCloud
+        run: |
+          echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Rodar análise Sonar
+        run: |
+          dotnet sonarscanner begin /k:"fiap-catalog-service" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
   deploy:
     if: github.ref == 'refs/heads/main'
     needs: tests
