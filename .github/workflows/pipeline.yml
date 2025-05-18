@@ -53,19 +53,20 @@ jobs:
     - name: Add SonarScanner to PATH
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-    - name: Begin SonarQube Analysis
+    - name: Begin SonarCloud analysis
       run: |
         dotnet sonarscanner begin `
           /k:"guilherme-martins92_fiap-catalog-service" `
+          /o:"guilherme-martins92" `
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
           /d:sonar.host.url="https://sonarcloud.io"
       shell: pwsh
 
     - name: Build Project
-      run: dotnet build SeuProjeto.sln --no-incremental
+      run: dotnet build src/fiap-catalog-service.sln --no-incremental
 
     - name: Test Project
-      run: dotnet test --no-build
+      run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --no-build
 
     - name: End SonarQube Analysis
       run: |
