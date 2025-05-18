@@ -33,30 +33,49 @@ jobs:
       - name: Executar testes
         run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release
 
-  sonar:
+  sonarQube:
     needs: tests
+    name: SonarQube Analysis
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Instalar SonarScanner
-        run: |
-          pip install aws-sam-cli
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'  # ou a versão do seu projeto
 
-      - name: Configurar credenciais SonarCloud
-        run: |
-          echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> $GITHUB_ENV
+    - name: Install SonarScanner for .NET
+      run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Rodar análise Sonar
-        run: |
-          dotnet sonarscanner begin /k:"fiap-catalog-service" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-          dotnet build
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+    - name: Add SonarScanner to PATH
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: Begin SonarQube Analysis
+      run: |
+        dotnet sonarscanner begin `
+          /k:"guilherme-martins92_fiap-catalog-service" `
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
+          /d:sonar.host.url="https://sonarcloud.io"
+      shell: pwsh
+
+    - name: Build Project
+      run: dotnet build SeuProjeto.sln --no-incremental
+
+    - name: Test Project
+      run: dotnet test --no-build
+
+    - name: End SonarQube Analysis
+      run: |
+        dotnet sonarscanner end `
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      shell: pwsh
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: sonar
+    needs: sonarQube
     runs-on: ubuntu-latest
     steps:
       - name: Checkout código
