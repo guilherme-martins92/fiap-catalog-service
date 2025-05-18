@@ -66,22 +66,11 @@ jobs:
       - name: Compilar projeto
         run: dotnet build src/fiap-catalog-service.sln --no-incremental
 
-      - name: Executar testes com cobertura
-        run: |
-          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj `
-            --no-build `
-            --collect:"XPlat Code Coverage" `
-            --results-directory:./TestResults
-        shell: pwsh
+      - name: Run tests with coverage
+        run: dotnet test --no-build --collect:"XPlat Code Coverage"
 
-      - name: Converter cobertura para formato Cobertura
-        run: |
-          dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator `
-            -reports:"TestResults/**/coverage.cobertura.xml" `
-            -targetdir:"CoverageReport" `
-            -reporttypes:Cobertura
-        shell: pwsh
+      - name: Convert coverage to OpenCover format
+        run: reportgenerator -reports:**/coverage.cobertura.xml -targetdir:coveragereport -reporttypes:HtmlInline_AzurePipelines;Cobertura -reporttypes:OpenCover -filefilters:+*.cs -assemblyfilters:+*
 
       - name: Finalizar análise SonarCloud
         run: |
