@@ -79,7 +79,7 @@ namespace fiap_catalog_service_tests
         public async Task UpdateVehicle_ReturnsOkResult_WhenVehicleIsUpdated()
         {
             // Arrange          
-            var vehicle = new Vehicle { Model = "Corolla", Brand = "Toyota", Color = "Gray", Year = 2019, Price = 20000 };
+            var vehicle = new Vehicle { Model = "Corolla", Brand = "Toyota", Color = "White", Year = 2019, Price = 20000 };
             _validatorMock.Setup(v => v.Validate(vehicle)).Returns(new FluentValidation.Results.ValidationResult());
             _vehicleServiceMock.Setup(s => s.UpdateVehicleAsync(vehicle.Id, vehicle)).ReturnsAsync(vehicle);
 
