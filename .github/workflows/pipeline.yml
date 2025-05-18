@@ -30,8 +30,14 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Executar testes
-        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release
+      - name: Executar testes com cobertura
+        run: |
+          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj \
+            --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=TestResults/coverage.cobertura.xml
+        shell: pwsh
 
   sonarQube:
     needs: tests
@@ -55,12 +61,12 @@ jobs:
 
       - name: Iniciar análise SonarCloud
         run: |
-          dotnet sonarscanner begin `
-            /k:"guilherme-martins92_fiap-catalog-service" `
-            /o:"guilherme-martins92" `
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+          dotnet sonarscanner begin \
+            /k:"guilherme-martins92_fiap-catalog-service" \
+            /o:"guilherme-martins92" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="TestResults/coverage.cobertura.xml"
         shell: pwsh
 
       - name: Compilar projeto
@@ -68,24 +74,24 @@ jobs:
 
       - name: Executar testes com cobertura
         run: |
-          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj `
-            --no-build `
-            --collect:"XPlat Code Coverage" `
+          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
             --results-directory:./TestResults
         shell: pwsh
 
       - name: Converter cobertura para formato Cobertura
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator `
-            -reports:"TestResults/**/coverage.cobertura.xml" `
-            -targetdir:"CoverageReport" `
+          reportgenerator \
+            -reports:"TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"CoverageReport" \
             -reporttypes:Cobertura
         shell: pwsh
 
       - name: Finalizar análise SonarCloud
         run: |
-          dotnet sonarscanner end `
+          dotnet sonarscanner end \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
 
