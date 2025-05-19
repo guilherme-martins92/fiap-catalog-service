@@ -42,6 +42,9 @@ jobs:
       - name: Executar testes com cobertura
         run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release --no-restore --collect:"XPlat Code Coverage"
 
+      - name: Mover relatório de cobertura
+        run: mv src/fiap-catalog-service-tests/TestResults/**/*.xml coverage.xml
+
   SonarCloud:
     runs-on: ubuntu-latest
     needs: Tests
@@ -55,12 +58,18 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
+      - name: Instalar SonarScanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - name: Executar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.xml"
+          dotnet build src/fiap-catalog-service.sln --configuration Release
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   Deploy:
     if: github.ref == 'refs/heads/main'
