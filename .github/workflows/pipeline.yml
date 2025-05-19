@@ -1,114 +1,84 @@
-name: CI/CD Pipeline
+name: .NET CI/CD Pipeline
 
 on:
   push:
     branches:
-      - develop
       - main
-  pull_request:
-    branches:
       - develop
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do código
+      - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Instalar dependências
-        run: dotnet restore src/fiap-catalog-service.sln
-
-      - name: Compilar aplicação
-        run: dotnet build src/fiap-catalog-service.sln --configuration Release
-
-  tests:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-
-      - name: Executar testes
-        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release
-
-  sonarQube:
-    needs: tests
-    name: SonarQube Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup .NET
+      - name: Configurar .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Instalar SonarScanner para .NET
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Restaurar dependências
+        run: dotnet restore
 
-      - name: Adicionar SonarScanner ao PATH
-        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      - name: Build da aplicação
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Iniciar análise SonarCloud
-        run: |
-          dotnet sonarscanner begin `
-            /k:"guilherme-martins92_fiap-catalog-service" `
-            /o:"guilherme-martins92" `
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-        shell: pwsh
-
-      - name: Compilar projeto
-        run: dotnet build src/fiap-catalog-service.sln --no-incremental
-
-      - name: Executar testes com cobertura
-        run: |
-          dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj `
-            --no-build `
-            --collect:"XPlat Code Coverage" `
-            --results-directory:./TestResults
-        shell: pwsh
-
-      - name: Converter cobertura para formato OpenCover
-        run: |
-          dotnet tool install -g dotnet-reportgenerator-globaltool
-          reportgenerator `
-            -reports:"TestResults/**/coverage.cobertura.xml" `
-            -targetdir:"CoverageReport" `
-            -reporttypes:OpenCover
-        shell: pwsh
-
-      - name: Finalizar análise SonarCloud
-        run: |
-          dotnet sonarscanner end `
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-        shell: pwsh
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: sonarQube
+  test:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Instalar AWS SAM CLI
-        run: pip install aws-sam-cli
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
-      - name: Configurar credenciais AWS
+      - name: Restaurar dependências
+        run: dotnet restore
+
+      - name: Executar testes com cobertura
+        run: dotnet test --configuration Release --no-restore --collect:"XPlat Code Coverage"
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Executar análise SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: 'us-east-1'
 
-      - name: Build SAM Application
-        run: sam build
-
-      - name: Deploy para AWS
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name fiap-catalog-service
+      - name: Fazer deploy do SAM template
+        run: |
+          sam build
+          sam deploy --stack-name my-dotnet-stack --capabilities CAPABILITY_IAM
