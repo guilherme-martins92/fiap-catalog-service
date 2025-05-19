@@ -59,8 +59,9 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.xml"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   Deploy:
     if: github.ref == 'refs/heads/main'
