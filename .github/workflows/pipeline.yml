@@ -60,7 +60,7 @@ jobs:
             /o:"guilherme-martins92" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
         shell: pwsh
 
       - name: Compilar projeto
@@ -74,13 +74,13 @@ jobs:
             --results-directory:./TestResults
         shell: pwsh
 
-      - name: Converter cobertura para formato Cobertura
+      - name: Converter cobertura para formato OpenCover
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
           reportgenerator `
             -reports:"TestResults/**/coverage.cobertura.xml" `
             -targetdir:"CoverageReport" `
-            -reporttypes:Cobertura
+            -reporttypes:OpenCover
         shell: pwsh
 
       - name: Finalizar análise SonarCloud
