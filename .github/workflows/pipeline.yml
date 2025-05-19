@@ -37,7 +37,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restaurar dependências
-        run: dotnet restore
+        run: dotnet restore src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj
 
       - name: Executar testes com cobertura
         run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release --no-restore --collect:"XPlat Code Coverage"
