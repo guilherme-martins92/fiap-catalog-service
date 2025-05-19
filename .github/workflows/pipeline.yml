@@ -63,9 +63,6 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      - name: Verificar SonarScanner
-        run: dotnet sonarscanner --version
-
       - name: Executar análise SonarCloud
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
