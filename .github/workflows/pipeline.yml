@@ -61,9 +61,9 @@ jobs:
         run: |
           dotnet tool install --global dotnet-sonarscanner
           dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" 
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
-          /d:sonar.host.url="https://sonarcloud.io"
           /o:"guilherme-martins92"
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" 
+          /d:sonar.host.url="https://sonarcloud.io"          
           dotnet build
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
