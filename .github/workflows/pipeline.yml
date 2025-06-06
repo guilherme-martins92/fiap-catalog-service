@@ -39,10 +39,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restaurar dependências
-        run: dotnet restore src/fiap-catalog-service-tests/fiap-catalog-tests.csproj
+        run: dotnet restore src/fiap-catalog-service-tests
 
       - name: Executar testes com cobertura
-        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release --no-restore
+        run: dotnet test src/fiap-catalog-service-tests --configuration Release --no-restore
         
   SonarCloud:
     runs-on: ubuntu-latest
