@@ -7,7 +7,7 @@ on:
       - develop
   pull_request:
     types: [opened, synchronize, reopened]
-    
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -25,7 +25,7 @@ jobs:
 
       - name: Build da aplicação
         run: dotnet build src/fiap-catalog-service.sln --configuration Release
-
+        
   Tests:
     runs-on: ubuntu-latest
     needs: Build
@@ -39,39 +39,55 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restaurar dependências
-        run: dotnet restore src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj
+        run: dotnet restore src/fiap-catalog-service-tests/fiap-catalog-catalog-tests.csproj
 
       - name: Executar testes com cobertura
-        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release --no-restore --collect:"XPlat Code Coverage"
-
-      - name: Mover relatório de cobertura
-        run: mv src/fiap-catalog-service-tests/TestResults/**/*.xml coverage.xml
-
+        run: dotnet test src/fiap-catalog-service-tests/fiap-catalog-service-tests.csproj --configuration Release --no-restore
+        
   SonarCloud:
     runs-on: ubuntu-latest
     needs: Tests
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Configurar Java
-        uses: actions/setup-java@v3
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
         with:
-          distribution: 'temurin'
-          java-version: '11'
+          dotnet-version: 8.0.x
 
-      - name: Instalar SonarScanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: $HOME/sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-      - name: Executar análise SonarCloud
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ./.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: dotnet tool update dotnet-sonarscanner --tool-path ./.sonar/scanner
+
+      - name: Install project dependencies
+        run: dotnet restore src/fiap-catalog-service.sln
+
+      - name: Test and analyze
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.xml"
-          dotnet build src/fiap-catalog-service.sln --configuration Release
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          ./.sonar/scanner/dotnet-sonarscanner begin /k:"guilherme-martins92_fiap-catalog-service" /o:"guilherme-martins92" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet test src/fiap-catalog-service.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover -l trx
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Build
+        run: dotnet build src/fiap-catalog-service.sln --configuration Release --no-restore
 
   Deploy:
     if: github.ref == 'refs/heads/main'
