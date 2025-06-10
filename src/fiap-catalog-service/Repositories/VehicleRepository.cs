@@ -1,8 +1,10 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using fiap_catalog_service.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace fiap_catalog_service.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class VehicleRepository : IVehicleRepository
     {
         private readonly IDynamoDBContext _context;
