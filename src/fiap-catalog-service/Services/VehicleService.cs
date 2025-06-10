@@ -1,5 +1,4 @@
-﻿using fiap_catalog_service.Constants;
-using fiap_catalog_service.Models;
+﻿using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 
 namespace fiap_catalog_service.Services
@@ -7,12 +6,11 @@ namespace fiap_catalog_service.Services
     public class VehicleService : IVehicleService
     {
         private readonly IVehicleRepository _vehicleRepository;
-        private readonly ISqsService _sqsService;
 
-        public VehicleService(IVehicleRepository vehicleRepository, ISqsService sqsService)
+
+        public VehicleService(IVehicleRepository vehicleRepository)
         {
             _vehicleRepository = vehicleRepository;
-            _sqsService = sqsService;
         }
 
         /// <summary>
@@ -38,7 +36,6 @@ namespace fiap_catalog_service.Services
         public async Task<Vehicle?> AddVehicleAsync(Vehicle vehicle)
         {
             await _vehicleRepository.AddAsync(vehicle);
-            await _sqsService.SendMessageAsync(VehicleEventType.Created, vehicle);
             return vehicle;
         }
 
@@ -53,7 +50,6 @@ namespace fiap_catalog_service.Services
             if (vehicleToUpdate == null) return null;
 
             await _vehicleRepository.UpdateAsync(vehicle);
-            await _sqsService.SendMessageAsync(VehicleEventType.Updated, vehicle);
             return vehicle;
         }
 
@@ -67,7 +63,6 @@ namespace fiap_catalog_service.Services
             if (vehicle == null) return null;
 
             await _vehicleRepository.DeleteAsync(id);
-            await _sqsService.SendMessageAsync(VehicleEventType.Deleted, vehicle);
             return vehicle;
         }
     }

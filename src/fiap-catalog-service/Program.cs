@@ -32,7 +32,6 @@ builder.Services.AddSingleton<IAmazonSQS>(sp =>
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
-builder.Services.AddScoped<ISqsService, SqsService>();
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.AddConsole();
@@ -59,4 +58,4 @@ using (var scope = app.Services.CreateScope())
     vehicleEndpoints.RegisterEndpoints(app);
 }
 
-app.Run();
+await app.RunAsync();
