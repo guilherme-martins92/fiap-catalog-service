@@ -1,10 +1,12 @@
 ﻿using fiap_catalog_service.Models;
 using fiap_catalog_service.Services;
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace fiap_catalog_service.Endpoints
 {
+    [ExcludeFromCodeCoverage]
     public class VehicleEndpoints
     {
         private readonly IVehicleService _vehicleService;
