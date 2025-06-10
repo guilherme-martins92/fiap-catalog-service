@@ -405,3 +405,6 @@ src/volume/
 
 # AWS SAM Template
 .aws-sam
+
+# Arquivos SonarQube
+src/.sonarqube
