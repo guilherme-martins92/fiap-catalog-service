@@ -1,8 +1,10 @@
 ﻿using fiap_catalog_service.Models;
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace fiap_catalog_service.Validators
 {
+    [ExcludeFromCodeCoverage]
     public class VehicleValidator : AbstractValidator<Vehicle>
     {
         public VehicleValidator()
