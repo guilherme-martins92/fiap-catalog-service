@@ -49,7 +49,13 @@ namespace fiap_catalog_service.Services
             var vehicleToUpdate = await _vehicleRepository.GetByIdAsync(id);
             if (vehicleToUpdate == null) return null;
 
-            await _vehicleRepository.UpdateAsync(vehicle);
+            vehicleToUpdate.Model = vehicle.Model;
+            vehicleToUpdate.Brand = vehicle.Brand;
+            vehicleToUpdate.Color = vehicle.Color;
+            vehicleToUpdate.Year = vehicle.Year;
+            vehicleToUpdate.Price = vehicle.Price;
+
+            await _vehicleRepository.UpdateAsync(vehicleToUpdate);
             return vehicle;
         }
 
