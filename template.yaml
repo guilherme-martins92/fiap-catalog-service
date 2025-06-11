@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Arquitetura baseada em microsservicos para catalogo de veiculos, utilizando AWS Lambda, Amazon SQS e DynamoDB
+  Arquitetura baseada em microsservicos para catalogo de veiculos, utilizando AWS Lambda e DynamoDB
 
 Globals:
   Function:
@@ -26,11 +26,6 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref VehiclesTable
-        - Statement:
-            - Effect: Allow
-              Action:
-                - sqs:SendMessage
-              Resource: !GetAtt VehicleEventsQueue.Arn
       Events:
         ProxyResource:
           Type: HttpApi
@@ -55,14 +50,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
-
-  VehicleEventsQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: VehicleEventsQueue
-      VisibilityTimeout: 30
-      MessageRetentionPeriod: 86400
-      ReceiveMessageWaitTimeSeconds: 10
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
