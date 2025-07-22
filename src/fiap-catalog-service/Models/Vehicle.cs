@@ -34,5 +34,16 @@ namespace fiap_catalog_service.Models
         /// The Price of the vehicle.
         /// </summary>
         public decimal Price { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the item is reserved.
+        /// </summary>
+        public bool Reserved { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the item is available.
+        /// </summary>
+        public bool Available { get; set; }
+
     }
 }
