@@ -5,7 +5,9 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 100
+    Timeout: 100 
+    Runtime: dotnet8
+    MemorySize: 256
 
     Tracing: Active
     LoggingConfig:
@@ -39,6 +41,23 @@ Resources:
           Properties:
             Path: /
             Method: ANY
+
+  ReservarVeiculoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: fiap-reservar-veiculo
+      CodeUri: ./src/fiap-catalog-service-consumers/
+      Handler: fiap_catalog_service_consumers.ReserveVehicleFunction::fiap_catalog_service_consumers.ReserveVehicleFunction.Function::FunctionHandler
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:891377307312:catalogo-reservas
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess  
+        - SQSPollerPolicy:
+            QueueName: catalogo-reservas
 
   VehiclesTable:
     Type: AWS::Serverless::SimpleTable
