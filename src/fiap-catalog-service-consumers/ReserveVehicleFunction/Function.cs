@@ -4,6 +4,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using fiap_catalog_service.Repositories;
 using fiap_catalog_service_consumers.ReserveVehicleFunction.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -11,6 +12,7 @@ using System.Text.Json;
 
 namespace fiap_catalog_service_consumers.ReserveVehicleFunction;
 
+[ExcludeFromCodeCoverage]
 public class Function
 {
     private readonly VehicleRepository _vehicleRepository;
