@@ -47,7 +47,7 @@ Resources:
     Properties:
       FunctionName: fiap-reservar-veiculo
       CodeUri: ./src/fiap-catalog-service-consumers/
-      Handler: fiap_catalog_service_consumers.ReserveVehicleFunction::fiap_catalog_service_consumers.ReserveVehicleFunction.Function::FunctionHandler
+      Handler: catalog.Reserve::catalog.Reserve.Function::FunctionHandler
       Events:
         SQSTrigger:
           Type: SQS
