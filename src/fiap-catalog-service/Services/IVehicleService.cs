@@ -31,6 +31,8 @@ namespace fiap_catalog_service.Services
 
         Task<Vehicle?> ReserveVehicleAsync(Guid id);
 
+        Task<Vehicle?> UnreserveVehicleAsync(Guid id);
+
         /// <summary>
         /// Deletes a vehicle by its ID.
         /// </summary>
