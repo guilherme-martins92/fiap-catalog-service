@@ -20,29 +20,27 @@ public class Function
             try
             {
                 context.Logger.LogLine($"Processing message ID: {record.MessageId}");
-                // Deserialize the message body to get the vehicle ID
+
                 var envelope = JsonSerializer.Deserialize<JsonElement>(record.Body);
 
                 if (envelope.TryGetProperty("detail", out var detailJson))
                 {
-                    var createdOrderEvent = JsonSerializer.Deserialize<CreatedOrderEvent>(detailJson);
+                    var orderEvent = JsonSerializer.Deserialize<OrderServiceEvent>(detailJson);
 
-                    if (createdOrderEvent == null)
+                    if (orderEvent == null)
                     {
                         context.Logger.LogLine("Failed to deserialize message body.");
                         continue;
                     }
 
-                    // Call the catalog service to reserve the vehicle
-                    var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/reserve/{createdOrderEvent.VehicleId}", null);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        context.Logger.LogLine($"Vehicle {createdOrderEvent.VehicleId} reserved successfully.");
-                    }
-                    else
-                    {
-                        context.Logger.LogLine($"Failed to reserve vehicle {createdOrderEvent.VehicleId}. Status code: {response.StatusCode}");
-                    }
+                    if (orderEvent.EventType == "CompraRealizada")
+                        await ReserveVehicleAsync(orderEvent.VehicleId, context);
+
+                    if (orderEvent.EventType == "CompraCancelada")
+                        await UnreserveVehicleAsync(orderEvent.VehicleId, context);
+
+                    if (orderEvent.EventType != "PagamentoNaoRealizado")
+                        await UnreserveVehicleAsync(orderEvent.VehicleId, context);
                 }
             }
             catch (Exception ex)
@@ -50,6 +48,34 @@ public class Function
                 context.Logger.LogError($"Error processing record: {ex.Message}");
                 throw;
             }
+        }
+    }
+
+    private async Task ReserveVehicleAsync(string vehicleId, ILambdaContext context)
+    {
+        var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/reserve/{vehicleId}", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            context.Logger.LogLine($"Vehicle {vehicleId} reserved successfully.");
+        }
+        else
+        {
+            context.Logger.LogLine($"Failed to reserve vehicle {vehicleId}. Status code: {response.StatusCode}");
+        }
+    }
+
+    private async Task UnreserveVehicleAsync(string vehicleId, ILambdaContext context)
+    {
+        var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/unreserve/{vehicleId}", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            context.Logger.LogLine($"Vehicle {vehicleId} unreserved successfully.");
+        }
+        else
+        {
+            context.Logger.LogLine($"Failed to unreserve vehicle {vehicleId}. Status code: {response.StatusCode}");
         }
     }
 }

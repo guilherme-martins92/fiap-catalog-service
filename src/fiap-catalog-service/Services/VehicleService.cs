@@ -68,6 +68,21 @@ namespace fiap_catalog_service.Services
                 throw new InvalidOperationException("Vehicle is already reserved.");
             }
             vehicle.IsReserved = true;
+            vehicle.IsAvailable = false;
+            await _vehicleRepository.UpdateAsync(vehicle);
+            return vehicle;
+        }
+
+        public async Task<Vehicle?> UnreserveVehicleAsync(Guid id)
+        {
+            var vehicle = await _vehicleRepository.GetByIdAsync(id);
+            if (vehicle == null) return null;
+            if (!vehicle.IsReserved)
+            {
+                throw new InvalidOperationException("Vehicle is not reserved.");
+            }
+            vehicle.IsReserved = false;
+            vehicle.IsAvailable = true;
             await _vehicleRepository.UpdateAsync(vehicle);
             return vehicle;
         }
