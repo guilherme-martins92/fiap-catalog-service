@@ -42,6 +42,24 @@ Resources:
             Path: /
             Method: ANY
 
+  VehicleReservationFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./src/fiap-reserve-vehicle-consumer/
+      Handler: fiap-reserve-vehicle-consumer::ReserveVehicle.Function::FunctionHandler
+      Runtime: dotnet8
+      Description: Lambda function em .NET 8 para processamento assincrono de mensagens da fila de veiculos que precisar ser reservados.
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - SQSPollerPolicy:
+            QueueName: catalogo-reservas
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:891377307312:catalogo-reservas
+            BatchSize: 5
+
   VehiclesTable:
     Type: AWS::Serverless::SimpleTable
     Properties:

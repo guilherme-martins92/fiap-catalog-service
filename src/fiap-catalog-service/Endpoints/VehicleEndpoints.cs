@@ -119,6 +119,22 @@ namespace fiap_catalog_service.Endpoints
                 }
             });
 
+            app.MapPut("/vehicles/reserve/{id}", async (Guid id) =>
+            {
+                try
+                {
+                    _logger.LogInformation("Reservando veículo com ID: {Id}", id);
+
+                    var updatedCar = await _vehicleService.ReserveVehicleAsync(id);
+                    return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erro ao reservar veículo com ID: {Id}", id);
+                    return Results.Problem(title: "Erro interno");
+                }
+            });
+
             app.MapDelete("/vehicles/{id}", async (Guid id) =>
             {
                 try

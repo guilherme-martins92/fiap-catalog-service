@@ -29,6 +29,8 @@ namespace fiap_catalog_service.Services
         /// <param name="vehicle"></param>
         Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle);
 
+        Task<Vehicle?> ReserveVehicleAsync(Guid id);
+
         /// <summary>
         /// Deletes a vehicle by its ID.
         /// </summary>
