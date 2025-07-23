@@ -59,6 +59,19 @@ namespace fiap_catalog_service.Services
             return vehicle;
         }
 
+        public async Task<Vehicle?> ReserveVehicleAsync(Guid id)
+        {
+            var vehicle = await _vehicleRepository.GetByIdAsync(id);
+            if (vehicle == null) return null;
+            if (vehicle.IsReserved)
+            {
+                throw new InvalidOperationException("Vehicle is already reserved.");
+            }
+            vehicle.IsReserved = true;
+            await _vehicleRepository.UpdateAsync(vehicle);
+            return vehicle;
+        }
+
         /// <summary>
         /// Deletes a vehicle by its ID.
         /// </summary>

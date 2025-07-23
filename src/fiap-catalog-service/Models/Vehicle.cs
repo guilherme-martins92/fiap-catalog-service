@@ -38,12 +38,12 @@ namespace fiap_catalog_service.Models
         /// <summary>
         /// Gets or sets a value indicating whether the item is reserved.
         /// </summary>
-        public bool Reserved { get; set; }
+        public bool IsReserved { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the item is available.
         /// </summary>
-        public bool Available { get; set; }
+        public bool IsAvailable { get; set; }
 
     }
 }

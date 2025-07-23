@@ -45,7 +45,7 @@ namespace fiap_catalog_service_tests
         public async Task GetVehicleById_ReturnsOkResult_WhenVehicleExists()
         {
             // Arrange         
-            var vehicle = new Vehicle { Model = "Model S", Brand = "Tesla", Color = "Black", Year = 2023, Price = 90000, Available = true, Reserved = false };
+            var vehicle = new Vehicle { Model = "Model S", Brand = "Tesla", Color = "Black", Year = 2023, Price = 90000, IsAvailable = true, IsReserved = false };
             _vehicleServiceMock.Setup(s => s.GetVehicleByIdAsync(vehicle.Id)).ReturnsAsync(vehicle);
 
             // Act  
@@ -60,7 +60,7 @@ namespace fiap_catalog_service_tests
         public async Task AddVehicle_ReturnsCreatedResult_WhenVehicleIsValid()
         {
             // Arrange  
-            var vehicle = new Vehicle { Model = "Civic", Brand = "Honda", Color = "White", Year = 2020, Price = 25000, Available = true, Reserved = false };
+            var vehicle = new Vehicle { Model = "Civic", Brand = "Honda", Color = "White", Year = 2020, Price = 25000, IsAvailable = true, IsReserved = false };
             _validatorMock.Setup(v => v.Validate(vehicle)).Returns(new FluentValidation.Results.ValidationResult());
             _vehicleServiceMock.Setup(s => s.AddVehicleAsync(vehicle)).ReturnsAsync(vehicle);
 
@@ -76,7 +76,7 @@ namespace fiap_catalog_service_tests
         public async Task UpdateVehicle_ReturnsOkResult_WhenVehicleIsUpdated()
         {
             // Arrange          
-            var vehicle = new Vehicle {Model = "Corolla", Brand = "Toyota", Color = "White", Year = 2019, Price = 20000, Available = true, Reserved = false };
+            var vehicle = new Vehicle {Model = "Corolla", Brand = "Toyota", Color = "White", Year = 2019, Price = 20000, IsAvailable = true, IsReserved = false };
             _validatorMock.Setup(v => v.Validate(vehicle)).Returns(new FluentValidation.Results.ValidationResult());
             _vehicleServiceMock.Setup(s => s.UpdateVehicleAsync(vehicle.Id, vehicle)).ReturnsAsync(vehicle);
 
@@ -89,41 +89,41 @@ namespace fiap_catalog_service_tests
         }
 
         [Fact]
-        public async Task UpdateVehicle_ShouldReserveVehicle_WhenVehicleIsReserved()
+        public async Task UpdateVehicle_ShouldReserveVehicle_WhenVehicleIsIsReserved()
         {
             // Arrange
-            var vehicle = new Vehicle { Model = "Camry", Brand = "Toyota", Color = "Silver", Year = 2021, Price = 30000, Available = false, Reserved = true };
+            var vehicle = new Vehicle { Model = "Camry", Brand = "Toyota", Color = "Silver", Year = 2021, Price = 30000, IsAvailable = false, IsReserved = true };
             _vehicleServiceMock.Setup(s => s.UpdateVehicleAsync(vehicle.Id, vehicle)).ReturnsAsync(vehicle);
             // Act
             var result = await _vehicleServiceMock.Object.UpdateVehicleAsync(vehicle.Id, vehicle);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(vehicle.Id, result.Id);
-            Assert.False(result.Available);
-            Assert.True(result.Reserved);
+            Assert.False(result.IsAvailable);
+            Assert.True(result.IsReserved);
         }
 
 
         [Fact]
-        public async Task UpdateVehicle_ShouldMakeVehicleAvailable_WhenVehicleIsNotReserved()
+        public async Task UpdateVehicle_ShouldMakeVehicleIsAvailable_WhenVehicleIsNotIsReserved()
         {
             // Arrange
-            var vehicle = new Vehicle { Model = "Model 3", Brand = "Tesla", Color = "Blue", Year = 2022, Price = 45000, Available = true, Reserved = false };
+            var vehicle = new Vehicle { Model = "Model 3", Brand = "Tesla", Color = "Blue", Year = 2022, Price = 45000, IsAvailable = true, IsReserved = false };
             _vehicleServiceMock.Setup(s => s.UpdateVehicleAsync(vehicle.Id, vehicle)).ReturnsAsync(vehicle);
             // Act
             var result = await _vehicleServiceMock.Object.UpdateVehicleAsync(vehicle.Id, vehicle);
             // Assert
             Assert.NotNull(result);
             Assert.Equal(vehicle.Id, result.Id);
-            Assert.True(result.Available);
-            Assert.False(result.Reserved);
+            Assert.True(result.IsAvailable);
+            Assert.False(result.IsReserved);
         }
 
         [Fact]
         public async Task DeleteVehicle_ReturnsOkResult_WhenVehicleIsDeleted()
         {
             // Arrange   
-            var vehicle = new Vehicle {Model = "Accord", Brand = "Honda", Color = "Black", Year = 2018, Price = 22000, Available = true, Reserved = false };
+            var vehicle = new Vehicle {Model = "Accord", Brand = "Honda", Color = "Black", Year = 2018, Price = 22000, IsAvailable = true, IsReserved = false };
             _vehicleServiceMock.Setup(s => s.DeleteVehicleAsync(vehicle.Id)).ReturnsAsync(vehicle);
 
             // Act  

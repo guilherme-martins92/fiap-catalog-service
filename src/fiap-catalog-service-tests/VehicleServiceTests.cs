@@ -105,8 +105,6 @@ namespace fiap_catalog_service_tests
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
             _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
 
-
-
             // Act  
             var result = await _vehicleService.UpdateVehicleAsync(vehicleId, vehicle);
 
@@ -146,6 +144,67 @@ namespace fiap_catalog_service_tests
             // Assert  
             Assert.Null(result);
             _mockRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never); 
+        }
+        [Fact]
+        public async Task ReserveVehicleAsync_ShouldReserveVehicle_WhenVehicleIsNotReserved()
+        {
+            // Arrange
+            var vehicleId = Guid.NewGuid();
+            var vehicle = new Vehicle
+            {            
+                Model = "Golf",
+                Brand = "Volkswagen",
+                Color = "Green",
+                Year = 2022,
+                Price = 25000,
+                IsReserved = false
+            };
+            _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
+            _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _vehicleService.ReserveVehicleAsync(vehicleId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(vehicle.IsReserved);
+            _mockRepository.Verify(repo => repo.UpdateAsync(vehicle), Times.Once);
+        }
+
+        [Fact]
+        public async Task ReserveVehicleAsync_ShouldReturnNull_WhenVehicleDoesNotExist()
+        {
+            // Arrange
+            var vehicleId = Guid.NewGuid();
+            _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
+
+            // Act
+            var result = await _vehicleService.ReserveVehicleAsync(vehicleId);
+
+            // Assert
+            Assert.Null(result);
+            _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task ReserveVehicleAsync_ShouldThrowException_WhenVehicleIsAlreadyReserved()
+        {
+            // Arrange
+            var vehicleId = Guid.NewGuid();
+            var vehicle = new Vehicle
+            {      
+                Model = "Fiesta",
+                Brand = "Ford",
+                Color = "Blue",
+                Year = 2020,
+                Price = 15000,
+                IsReserved = true
+            };
+            _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _vehicleService.ReserveVehicleAsync(vehicleId));
+            _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
         }
     }
 }
