@@ -42,23 +42,6 @@ Resources:
             Path: /
             Method: ANY
 
-  ReservarVeiculoFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: fiap-reservar-veiculo
-      CodeUri: ./src/fiap-catalog-service-consumers/
-      Handler: catalog.Reserve::catalog.Reserve.Function::FunctionHandler
-      Events:
-        SQSTrigger:
-          Type: SQS
-          Properties:
-            Queue: arn:aws:sqs:us-east-1:891377307312:catalogo-reservas
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - AmazonDynamoDBFullAccess  
-        - SQSPollerPolicy:
-            QueueName: catalogo-reservas
-
   VehiclesTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
