@@ -39,7 +39,7 @@ public class Function
                     if (orderEvent.EventType == "CompraCancelada")
                         await UnreserveVehicleAsync(orderEvent.VehicleId, context);
 
-                    if (orderEvent.EventType != "PagamentoNaoRealizado")
+                    if (orderEvent.EventType == "PagamentoNaoRealizado")
                         await UnreserveVehicleAsync(orderEvent.VehicleId, context);
                 }
             }
