@@ -3,7 +3,6 @@
 public class OrderServiceEvent
 {
     public required string EventType { get; set; }     // "CompraCriada"
-    public required string OrderId { get; set; }
-    public required string VehicleId { get; set; }
+    public required ReserveVehicleDto ReserveVehicleDto { get; set; } // Contains VehicleId and OrderId
     public DateTime Timestamp { get; set; }
 }

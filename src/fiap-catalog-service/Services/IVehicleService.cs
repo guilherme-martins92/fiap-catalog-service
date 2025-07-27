@@ -1,4 +1,5 @@
-﻿using fiap_catalog_service.Models;
+﻿using fiap_catalog_service.Dtos;
+using fiap_catalog_service.Models;
 
 namespace fiap_catalog_service.Services
 {
@@ -29,7 +30,7 @@ namespace fiap_catalog_service.Services
         /// <param name="vehicle"></param>
         Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle);
 
-        Task<Vehicle?> ReserveVehicleAsync(Guid id);
+        Task<Vehicle?> ReserveVehicleAsync(ReserveVehicleDto reserveVehicleDto);
 
         Task<Vehicle?> UnreserveVehicleAsync(Guid id);
 

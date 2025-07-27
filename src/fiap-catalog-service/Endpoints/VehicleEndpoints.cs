@@ -1,4 +1,5 @@
-﻿using fiap_catalog_service.Models;
+﻿using fiap_catalog_service.Dtos;
+using fiap_catalog_service.Models;
 using fiap_catalog_service.Services;
 using FluentValidation;
 using System.Diagnostics.CodeAnalysis;
@@ -119,18 +120,18 @@ namespace fiap_catalog_service.Endpoints
                 }
             });
 
-            app.MapPut("/vehicles/reserve/{id}", async (Guid id) =>
+            app.MapPut("/vehicles/reserve", async (ReserveVehicleDto reserveVehicleDto) =>
             {
                 try
                 {
-                    _logger.LogInformation("Reservando veículo com ID: {Id}", id);
+                    _logger.LogInformation("Reservando veículo com ID: {Id}", reserveVehicleDto.VehicleId);
 
-                    var updatedCar = await _vehicleService.ReserveVehicleAsync(id);
+                    var updatedCar = await _vehicleService.ReserveVehicleAsync(reserveVehicleDto);
                     return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro ao reservar veículo com ID: {Id}", id);
+                    _logger.LogError(ex, "Erro ao reservar veículo com ID: {Id}", reserveVehicleDto.VehicleId);
                     return Results.Problem(title: "Erro interno");
                 }
             });
