@@ -26,6 +26,8 @@ namespace fiap_catalog_service.Infrastructure.EventBridge
                 EventType = "VeiculoReservado",
                 OrderId = orderId,
                 VehicleId = vehicleId,
+                Description = "Reserva de veículo",
+                Amount = 100.00m,
                 Timestamp = DateTime.UtcNow
             });
 
