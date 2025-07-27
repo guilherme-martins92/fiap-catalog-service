@@ -1,4 +1,5 @@
 ﻿using fiap_catalog_service.Dtos;
+using fiap_catalog_service.Infrastructure.EventBridge;
 using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 
@@ -7,11 +8,12 @@ namespace fiap_catalog_service.Services
     public class VehicleService : IVehicleService
     {
         private readonly IVehicleRepository _vehicleRepository;
+        private readonly IEventPublisher _eventPublisher;
 
-
-        public VehicleService(IVehicleRepository vehicleRepository)
+        public VehicleService(IVehicleRepository vehicleRepository, IEventPublisher eventPublisher)
         {
             _vehicleRepository = vehicleRepository;
+            _eventPublisher = eventPublisher;
         }
 
         /// <summary>
@@ -63,15 +65,17 @@ namespace fiap_catalog_service.Services
         public async Task<Vehicle?> ReserveVehicleAsync(ReserveVehicleDto reserveVehicleDto)
         {
             var vehicle = await _vehicleRepository.GetByIdAsync(reserveVehicleDto.VehicleId);
+
             if (vehicle == null) return null;
             if (vehicle.IsReserved)
             {
                 throw new InvalidOperationException("Vehicle is already reserved.");
             }
+
             vehicle.IsReserved = true;
             vehicle.IsAvailable = false;
             await _vehicleRepository.UpdateAsync(vehicle); 
-
+            await _eventPublisher.PublishVehicleReservedEventAsync(reserveVehicleDto.OrderId, vehicle.Id);
             return vehicle;
         }
 
