@@ -1,10 +1,12 @@
 ﻿using Amazon.EventBridge;
 using Amazon.EventBridge.Model;
 using fiap_catalog_service.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace fiap_catalog_service.Infrastructure.EventBridge
 {
+    [ExcludeFromCodeCoverage]
     public class EventBridgePublisher : IEventPublisher
     {
         private readonly IAmazonEventBridge _eventBridge;
