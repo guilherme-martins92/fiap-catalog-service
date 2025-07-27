@@ -1,4 +1,5 @@
-﻿using fiap_catalog_service.Models;
+﻿using fiap_catalog_service.Dtos;
+using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 
 namespace fiap_catalog_service.Services
@@ -59,9 +60,9 @@ namespace fiap_catalog_service.Services
             return vehicle;
         }
 
-        public async Task<Vehicle?> ReserveVehicleAsync(Guid id)
+        public async Task<Vehicle?> ReserveVehicleAsync(ReserveVehicleDto reserveVehicleDto)
         {
-            var vehicle = await _vehicleRepository.GetByIdAsync(id);
+            var vehicle = await _vehicleRepository.GetByIdAsync(reserveVehicleDto.VehicleId);
             if (vehicle == null) return null;
             if (vehicle.IsReserved)
             {
@@ -69,7 +70,8 @@ namespace fiap_catalog_service.Services
             }
             vehicle.IsReserved = true;
             vehicle.IsAvailable = false;
-            await _vehicleRepository.UpdateAsync(vehicle);
+            await _vehicleRepository.UpdateAsync(vehicle); 
+
             return vehicle;
         }
 

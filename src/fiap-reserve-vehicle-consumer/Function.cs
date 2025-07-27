@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using fiap_reserve_vehicle_consumer.Models;
+using System.Text;
 using System.Text.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -34,13 +35,13 @@ public class Function
                     }
 
                     if (orderEvent.EventType == "CompraRealizada")
-                        await ReserveVehicleAsync(orderEvent.VehicleId, context);
+                        await ReserveVehicleAsync(orderEvent.ReserveVehicleDto, context);
 
-                    if (orderEvent.EventType == "CompraCancelada")
-                        await UnreserveVehicleAsync(orderEvent.VehicleId, context);
+                    //if (orderEvent.EventType == "CompraCancelada")
+                    //    await UnreserveVehicleAsync(orderEvent.VehicleId, context);
 
-                    if (orderEvent.EventType == "PagamentoNaoRealizado")
-                        await UnreserveVehicleAsync(orderEvent.VehicleId, context);
+                    //if (orderEvent.EventType == "PagamentoNaoRealizado")
+                    //    await UnreserveVehicleAsync(orderEvent.VehicleId, context);
                 }
             }
             catch (Exception ex)
@@ -51,17 +52,20 @@ public class Function
         }
     }
 
-    private async Task ReserveVehicleAsync(string vehicleId, ILambdaContext context)
+    private async Task ReserveVehicleAsync(ReserveVehicleDto reserveVehicleDto, ILambdaContext context)
     {
-        var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/reserve/{vehicleId}", null);
+        var json = JsonSerializer.Serialize(reserveVehicleDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PutAsync("https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/reserve", content);
 
         if (response.IsSuccessStatusCode)
         {
-            context.Logger.LogLine($"Vehicle {vehicleId} reserved successfully.");
+            context.Logger.LogLine($"Vehicle {reserveVehicleDto.VehicleId} reserved successfully.");
         }
         else
         {
-            context.Logger.LogLine($"Failed to reserve vehicle {vehicleId}. Status code: {response.StatusCode}");
+            context.Logger.LogLine($"Failed to reserve vehicle {reserveVehicleDto.VehicleId}. Status code: {response.StatusCode}");
         }
     }
 
