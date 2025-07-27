@@ -1,4 +1,5 @@
 using fiap_catalog_service.Dtos;
+using fiap_catalog_service.Infrastructure.EventBridge;
 using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 using fiap_catalog_service.Services;
@@ -9,12 +10,14 @@ namespace fiap_catalog_service_tests
     public class VehicleServiceTests
     {
         private readonly Mock<IVehicleRepository> _mockRepository;
+        private readonly Mock<IEventPublisher> _mockEventPublisher;
         private readonly VehicleService _vehicleService;
 
         public VehicleServiceTests()
         {
             _mockRepository = new Mock<IVehicleRepository>();
-            _vehicleService = new VehicleService(_mockRepository.Object);
+            _mockEventPublisher = new Mock<IEventPublisher>();
+            _vehicleService = new VehicleService(_mockRepository.Object, _mockEventPublisher.Object);            
         }
 
         [Fact]
@@ -171,6 +174,7 @@ namespace fiap_catalog_service_tests
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(reserveVehicleDto.VehicleId)).ReturnsAsync(vehicle);
             _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
+            _mockEventPublisher.Setup(publisher => publisher.PublishVehicleReservedEventAsync(orderId, vehicle.Id)).Returns(Task.CompletedTask);
 
             // Act
             var result = await _vehicleService.ReserveVehicleAsync(reserveVehicleDto);
@@ -180,6 +184,7 @@ namespace fiap_catalog_service_tests
             Assert.True(vehicle.IsReserved);
             Assert.False(vehicle.IsAvailable);
             _mockRepository.Verify(repo => repo.UpdateAsync(vehicle), Times.Once);
+            _mockEventPublisher.Verify(publisher => publisher.PublishVehicleReservedEventAsync(orderId, vehicle.Id), Times.Once);
         }
 
         [Fact]

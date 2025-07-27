@@ -1,11 +1,13 @@
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.EventBridge;
+using Amazon.SQS;
 using fiap_catalog_service.Endpoints;
+using fiap_catalog_service.Infrastructure.EventBridge;
 using fiap_catalog_service.Repositories;
+using fiap_catalog_service.Services;
 using fiap_catalog_service.Validators;
 using FluentValidation;
-using fiap_catalog_service.Services;
-using Amazon.SQS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,10 +34,17 @@ builder.Services.AddSingleton<IAmazonSQS>(sp =>
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IEventPublisher, EventBridgePublisher>();
+
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.AddConsole();
     loggingBuilder.AddDebug();
+});
+
+builder.Services.AddSingleton<IAmazonEventBridge>(sp =>
+{
+    return new AmazonEventBridgeClient();
 });
 
 var app = builder.Build();
