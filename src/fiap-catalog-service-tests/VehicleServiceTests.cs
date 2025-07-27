@@ -1,3 +1,4 @@
+using fiap_catalog_service.Dtos;
 using fiap_catalog_service.Models;
 using fiap_catalog_service.Repositories;
 using fiap_catalog_service.Services;
@@ -148,22 +149,31 @@ namespace fiap_catalog_service_tests
         [Fact]
         public async Task ReserveVehicleAsync_ShouldReserveVehicle_WhenVehicleIsNotReserved()
         {
-            // Arrange
-            var vehicleId = Guid.NewGuid();
+            // Arrange     
+            var orderId = Guid.NewGuid();
+
             var vehicle = new Vehicle
             {
-                Model = "Golf",
-                Brand = "Volkswagen",
-                Color = "Green",
-                Year = 2022,
-                Price = 25000,
-                IsReserved = false
+                Model = "Model 3",
+                Brand = "Tesla",
+                Color = "White",
+                Year = 2021,
+                Price = 35000,
+                IsReserved = false,
+                IsAvailable = true
             };
-            _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicle.Id,
+                OrderId = orderId
+            };
+
+            _mockRepository.Setup(repo => repo.GetByIdAsync(reserveVehicleDto.VehicleId)).ReturnsAsync(vehicle);
             _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _vehicleService.ReserveVehicleAsync(vehicleId);
+            var result = await _vehicleService.ReserveVehicleAsync(reserveVehicleDto);
 
             // Assert
             Assert.NotNull(result);
@@ -177,10 +187,18 @@ namespace fiap_catalog_service_tests
         {
             // Arrange
             var vehicleId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicleId,
+                OrderId = orderId
+            };
+
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
 
             // Act
-            var result = await _vehicleService.ReserveVehicleAsync(vehicleId);
+            var result = await _vehicleService.ReserveVehicleAsync(reserveVehicleDto);
 
             // Assert
             Assert.Null(result);
@@ -190,21 +208,30 @@ namespace fiap_catalog_service_tests
         [Fact]
         public async Task ReserveVehicleAsync_ShouldThrowException_WhenVehicleIsAlreadyReserved()
         {
-            // Arrange
             var vehicleId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
             var vehicle = new Vehicle
             {
-                Model = "Fiesta",
-                Brand = "Ford",
-                Color = "Blue",
-                Year = 2020,
-                Price = 15000,
-                IsReserved = true
+                Model = "Model Y",
+                Brand = "Tesla",
+                Color = "Black",
+                Year = 2022,
+                Price = 60000,
+                IsReserved = true,
+                IsAvailable = false
             };
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicleId,
+                OrderId = orderId
+            };
+
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
+            _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
 
             // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _vehicleService.ReserveVehicleAsync(vehicleId));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _vehicleService.ReserveVehicleAsync(reserveVehicleDto));
             _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
         }
 
