@@ -37,11 +37,8 @@ public class Function
                     if (orderEvent.EventType == "CompraRealizada")
                         await ReserveVehicleAsync(orderEvent.ReserveVehicleDto, context);
 
-                    //if (orderEvent.EventType == "CompraCancelada")
-                    //    await UnreserveVehicleAsync(orderEvent.VehicleId, context);
-
-                    //if (orderEvent.EventType == "PagamentoNaoRealizado")
-                    //    await UnreserveVehicleAsync(orderEvent.VehicleId, context);
+                    if (orderEvent.EventType == "CompraCancelada" || orderEvent.EventType == "PagamentoNaoRealizado")
+                        await UnreserveVehicleAsync(orderEvent.ReserveVehicleDto, context);
                 }
             }
             catch (Exception ex)
@@ -69,17 +66,20 @@ public class Function
         }
     }
 
-    private async Task UnreserveVehicleAsync(string vehicleId, ILambdaContext context)
+    private async Task UnreserveVehicleAsync(ReserveVehicleDto reserveVehicleDto, ILambdaContext context)
     {
-        var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/unreserve/{vehicleId}", null);
+        var json = JsonSerializer.Serialize(reserveVehicleDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PutAsync($"https://qck4zlo8gl.execute-api.us-east-1.amazonaws.com/vehicles/unreserve/", content);
 
         if (response.IsSuccessStatusCode)
         {
-            context.Logger.LogLine($"Vehicle {vehicleId} unreserved successfully.");
+            context.Logger.LogLine($"Vehicle {reserveVehicleDto.VehicleId} unreserved successfully.");
         }
         else
         {
-            context.Logger.LogLine($"Failed to unreserve vehicle {vehicleId}. Status code: {response.StatusCode}");
+            context.Logger.LogLine($"Failed to unreserve vehicle {reserveVehicleDto.VehicleId}. Status code: {response.StatusCode}");
         }
     }
 }

@@ -254,10 +254,19 @@ namespace fiap_catalog_service_tests
                 Price = 20000,
                 IsReserved = true
             };
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicleId,
+                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+            };
+
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
             _mockRepository.Setup(repo => repo.UpdateAsync(vehicle)).Returns(Task.CompletedTask);
+
             // Act
-            var result = await _vehicleService.UnreserveVehicleAsync(vehicleId);
+            var result = await _vehicleService.UnreserveVehicleAsync(reserveVehicleDto);
+
             // Assert
             Assert.NotNull(result);
             Assert.False(vehicle.IsReserved);
@@ -270,9 +279,16 @@ namespace fiap_catalog_service_tests
         {
             // Arrange
             var vehicleId = Guid.NewGuid();
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicleId,
+                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+            };
+
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
             // Act
-            var result = await _vehicleService.UnreserveVehicleAsync(vehicleId);
+            var result = await _vehicleService.UnreserveVehicleAsync(reserveVehicleDto);
             // Assert
             Assert.Null(result);
             _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
@@ -292,9 +308,16 @@ namespace fiap_catalog_service_tests
                 Price = 23000,
                 IsReserved = false
             };
+
+            var reserveVehicleDto = new ReserveVehicleDto
+            {
+                VehicleId = vehicleId,
+                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+            };
+
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
             // Act & Assert
-            await Assert.ThrowsAsync<InvalidOperationException>(() => _vehicleService.UnreserveVehicleAsync(vehicleId));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _vehicleService.UnreserveVehicleAsync(reserveVehicleDto));
             _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Vehicle>()), Times.Never);
         }
     }

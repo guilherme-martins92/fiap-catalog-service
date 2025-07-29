@@ -79,9 +79,9 @@ namespace fiap_catalog_service.Services
             return vehicle;
         }
 
-        public async Task<Vehicle?> UnreserveVehicleAsync(Guid id)
+        public async Task<Vehicle?> UnreserveVehicleAsync(ReserveVehicleDto reserveVehicleDto)
         {
-            var vehicle = await _vehicleRepository.GetByIdAsync(id);
+            var vehicle = await _vehicleRepository.GetByIdAsync(reserveVehicleDto.VehicleId);
             if (vehicle == null) return null;
             if (!vehicle.IsReserved)
             {
