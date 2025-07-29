@@ -136,17 +136,17 @@ namespace fiap_catalog_service.Endpoints
                 }
             });
 
-            app.MapPut("/vehicles/unreserve/{id}", async (Guid id) =>
+            app.MapPut("/vehicles/unreserve", async (ReserveVehicleDto reserveVehicleDto) =>
             {
                 try
                 {
-                    _logger.LogInformation("Liberando reserva do veículo com ID: {Id}", id);
-                    var updatedCar = await _vehicleService.UnreserveVehicleAsync(id);
+                    _logger.LogInformation("Liberando reserva do veículo com ID: {Id}", reserveVehicleDto.VehicleId);
+                    var updatedCar = await _vehicleService.UnreserveVehicleAsync(reserveVehicleDto);
                     return updatedCar is not null ? Results.Ok(updatedCar) : Results.NotFound();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro ao liberar reserva do veículo com ID: {Id}", id);
+                    _logger.LogError(ex, "Erro ao liberar reserva do veículo com ID: {Id}", reserveVehicleDto.VehicleId);
                     return Results.Problem(title: "Erro interno");
                 }
             });
