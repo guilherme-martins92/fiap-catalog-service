@@ -90,6 +90,12 @@ namespace fiap_catalog_service.Services
             vehicle.IsReserved = false;
             vehicle.IsAvailable = true;
             await _vehicleRepository.UpdateAsync(vehicle);
+
+            if(reserveVehicleDto.EventType == "PagamentoNaoRealizado")
+            {
+                await _eventPublisher.PublishVehicleUnreservedEventAsync(reserveVehicleDto.OrderId, vehicle.Id);
+            }
+
             return vehicle;
         }
 

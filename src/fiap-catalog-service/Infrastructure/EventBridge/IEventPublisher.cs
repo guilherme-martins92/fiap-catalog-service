@@ -3,5 +3,6 @@
     public interface IEventPublisher
     {
         Task PublishVehicleReservedEventAsync(Guid orderId, Guid vehicleId);
+        Task PublishVehicleUnreservedEventAsync(Guid orderId, Guid vehicleId);
     }
 }
