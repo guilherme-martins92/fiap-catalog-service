@@ -52,5 +52,39 @@ namespace fiap_catalog_service.Infrastructure.EventBridge
                 throw new InvalidOperationException("Falha ao publicar evento CompraCancelada no EventBridge.");
             }
         }
+
+        public async Task PublishVehicleUnreservedEventAsync(Guid orderId, Guid vehicleId)
+        {
+            var detail = JsonSerializer.Serialize(new
+            {
+                EventType = "ReservaDesfeita",
+                OrderId = orderId,
+                VehicleId = vehicleId,
+                Description = "Reserva de veículo",
+                Amount = 100.00m,
+                Timestamp = DateTime.UtcNow
+            });
+
+            var request = new PutEventsRequest
+            {
+                Entries = new List<PutEventsRequestEntry>
+            {
+                new()
+                {
+                    Detail = detail,
+                    DetailType = "ReservaDesfeita",
+                    Source = "ms.catalogo",
+                    EventBusName = EventBusName
+                }
+            }
+            };
+
+            var response = await _eventBridge.PutEventsAsync(request);
+
+            if (response.FailedEntryCount > 0)
+            {
+                throw new InvalidOperationException("Falha ao publicar evento CompraCancelada no EventBridge.");
+            }
+        }
     }
 }

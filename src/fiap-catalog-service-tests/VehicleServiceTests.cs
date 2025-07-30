@@ -169,7 +169,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicle.Id,
-                OrderId = orderId
+                OrderId = orderId,
+                EventType = "CompraRealizada"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(reserveVehicleDto.VehicleId)).ReturnsAsync(vehicle);
@@ -197,7 +198,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicleId,
-                OrderId = orderId
+                OrderId = orderId,
+                EventType = "CompraRealizada"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
@@ -229,7 +231,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicleId,
-                OrderId = orderId
+                OrderId = orderId,
+                EventType = "CompraRealizada"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
@@ -258,7 +261,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicleId,
-                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+                OrderId = Guid.NewGuid(),
+                EventType = "PagamentoNaoRealizado"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);
@@ -283,7 +287,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicleId,
-                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+                OrderId = Guid.NewGuid(),
+                EventType = "PagamentoNaoRealizado"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync((Vehicle?)null);
@@ -312,7 +317,8 @@ namespace fiap_catalog_service_tests
             var reserveVehicleDto = new ReserveVehicleDto
             {
                 VehicleId = vehicleId,
-                OrderId = Guid.NewGuid() // OrderId is not used in this method, but required for the DTO
+                OrderId = Guid.NewGuid(),
+                EventType = "PagamentoNaoRealizado"
             };
 
             _mockRepository.Setup(repo => repo.GetByIdAsync(vehicleId)).ReturnsAsync(vehicle);

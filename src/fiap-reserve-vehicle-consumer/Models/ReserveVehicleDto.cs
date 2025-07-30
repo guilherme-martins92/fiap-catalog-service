@@ -4,6 +4,6 @@
     {
         public required Guid VehicleId { get; init; }
         public required Guid OrderId { get; init; }
-        public required string Status { get; init; }
+        public required string EventType { get; init; }
     }
 }
